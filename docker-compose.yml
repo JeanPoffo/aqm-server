@@ -1,0 +1,32 @@
+version: "3.7"
+
+services: 
+  aqm-server:
+    build: .
+    container_name: aqm-server
+    restart: unless-stopped
+    environment:
+      - DATABASE_HOST=aqm-postgres
+      - DATABASE_PORT=5432
+      - DATABASE_USERNAME=aqm
+      - DATABASE_PASSWORD=aqm
+      - DATABASE_DATABASE=aqm
+      - DATABASE_ENTITIES=build/models/*.js
+      - DATABASE_MIGRATIONS=build/migrations/*.js
+    ports:
+      - 3030:3030
+    networks:
+      - default-network
+    depends_on:
+      - aqm-postgres
+  aqm-postgres: 
+    image: postgres:14.3
+    environment:
+      POSTGRES_DB: 'aqm'
+      POSTGRES_USER: 'aqm'
+      POSTGRES_PASSWORD: 'aqm'
+    networks:
+      - default-network
+networks:
+  default-network:
+    driver: bridge

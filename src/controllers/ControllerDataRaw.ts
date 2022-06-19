@@ -1,10 +1,11 @@
 import { Request, Response } from 'express';
 import ServiceCreateDataRaw from '../service/ServiceCreateDataRaw';
 
-class ControllerdataRaw {
+class ControllerDataRaw {
   public async create(request: Request, response: Response): Promise<Response> {
     const {
-      station_id,
+      stationId,
+      dateRegister,
       particulateMaterialTwoFive,
       particulateMaterialTen,
       carbonMonoxide,
@@ -18,7 +19,8 @@ class ControllerdataRaw {
     const serviceCreateDataRaw = new ServiceCreateDataRaw();
 
     const dataRaw = await serviceCreateDataRaw.execute({
-      station_id,
+      stationId,
+      dateRegister,
       particulateMaterialTwoFive,
       particulateMaterialTen,
       carbonMonoxide,
@@ -33,4 +35,4 @@ class ControllerdataRaw {
   }
 }
 
-export default ControllerdataRaw;
+export default ControllerDataRaw;

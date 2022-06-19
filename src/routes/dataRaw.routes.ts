@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import ControllerdataRaw from '../controllers/ControllerDataRaw';
+import ControllerDataRaw from '../controllers/ControllerDataRaw';
 
 const rawDataRouter = Router();
-const controllerDataRaw = new ControllerdataRaw();
+const controllerDataRaw = new ControllerDataRaw();
 
 rawDataRouter.post('/', controllerDataRaw.create);
 

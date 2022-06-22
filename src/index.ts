@@ -4,6 +4,7 @@ import 'express-async-errors';
 import express, { json } from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
+import { errors } from 'celebrate';
 import errorHandlerMiddleware from './middlewares/errorHandlerMiddleware';
 import { errorMessage, infoMessage, sucessMessage } from './utils/console';
 import { aqmDataSouce } from './config/database';
@@ -25,6 +26,7 @@ aqmDataSouce.initialize().then(async () => {
     app.use(helmet());
     app.use(cors({ origin: '*' }));
     app.use(routes);
+    app.use(errors());
     app.use(errorHandlerMiddleware);
     app.listen(3030, () => sucessMessage('Server Started 🖥️'));
   } catch (error) {

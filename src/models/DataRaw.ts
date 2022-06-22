@@ -4,8 +4,8 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
-  OneToOne,
   JoinColumn,
+  ManyToOne,
 } from 'typeorm';
 import Station from './Station';
 
@@ -14,7 +14,7 @@ class DataRaw {
   @PrimaryGeneratedColumn('uuid', { name: 'id' })
     id: string;
 
-  @OneToOne(() => Station)
+  @ManyToOne(() => Station)
   @JoinColumn({ name: 'station_id' })
     station: Station;
 

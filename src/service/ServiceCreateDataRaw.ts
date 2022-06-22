@@ -1,4 +1,5 @@
 import { aqmDataSouce } from '../config/database';
+import AppError from '../errors/AppError';
 import Station from '../models/Station';
 import DataRaw from '../models/DataRaw';
 import Data from '../models/Data';
@@ -40,7 +41,7 @@ class ServiceCreateDataRaw {
     const station = await stationRepository.findOne({ where: { id: stationId } });
 
     if (!station) {
-      throw new Error('Station Not Found');
+      throw new AppError('Station Not Found');
     }
 
     const dataRaw = dataRawRepository.create({

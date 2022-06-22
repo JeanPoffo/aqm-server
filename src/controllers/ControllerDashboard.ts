@@ -2,16 +2,10 @@ import { Request, Response } from 'express';
 import ServiceIndexDashboard from '../service/ServiceIndexDashboard';
 
 class ControllerDashboard {
-  public async index(request: Request, response: Response): Promise<Response> {
-    const {
-      startDate,
-    } = request.params;
-
+  public async index(_request: Request, response: Response): Promise<Response> {
     const serviceIndexDashboard = new ServiceIndexDashboard();
 
-    const dataDashboard = serviceIndexDashboard.execute({
-      startDate: new Date(startDate),
-    });
+    const dataDashboard = await serviceIndexDashboard.execute();
 
     return response.json(dataDashboard);
   }

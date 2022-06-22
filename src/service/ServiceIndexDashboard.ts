@@ -1,15 +1,29 @@
 import { MoreThan } from 'typeorm';
+import { sumAndDivide } from '../utils/numeric';
 import { aqmDataSouce } from '../config/database';
 import Station from '../models/Station';
 import Data from '../models/Data';
 
-interface Request {
-  startDate: Date
+/** Only Registered Data */
+interface DataResponse {
+  id: string,
+
+  dateRegister: Date,
+
+  particulateMaterialTwoFive: number,
+
+  carbonMonoxide: number,
+
+  ozone: number,
+
+  temperature: number,
+
+  humidity: number,
 }
 
 interface Response {
   station: Station,
-  data: Data[],
+  data: DataResponse[],
   conama: {
     particulateMaterialTwoFive: number,
     carbonMonoxide: number,
@@ -18,33 +32,59 @@ interface Response {
 }
 
 class ServiceIndexDashboard {
-  public async execute({ startDate }: Request): Promise<Response[]> {
+  public async execute(): Promise<Response[]> {
+    const lastTwentyFourHours = new Date();
+    lastTwentyFourHours.setHours(lastTwentyFourHours.getHours() - 24);
+
+    const lastEightHours = new Date();
+    lastEightHours.setHours(lastEightHours.getHours() - 8);
+
     const stationRepository = aqmDataSouce.getRepository(Station);
     const dataRepository = aqmDataSouce.getRepository(Data);
 
     const stations = await stationRepository.find({ where: { isActive: true } });
 
     const promiseReponses = stations.map(async (station) => {
-      const [data, records] = await dataRepository.findAndCount({
+      const dataTwentyFourHours = await dataRepository.find({
+        relations: ['dataRaw'],
         where: {
           dataRaw: {
             station: { id: station.id },
-            createdAt: MoreThan(startDate),
+            createdAt: MoreThan(lastTwentyFourHours),
           },
         },
       });
 
-      const particulateMaterialTwoFive = data
-        .map((d) => d.particulateMaterialTwoFive)
-        .reduce((a, b) => a + b, 0) / records;
+      const dataEightHours = dataTwentyFourHours.filter(
+        (actualData) => actualData.dataRaw.dateRegister >= lastEightHours,
+      );
+      const countTwentyFourHours = dataTwentyFourHours.length;
+      const countEightHours = dataEightHours.length;
 
-      const carbonMonoxide = data
-        .map((d) => d.carbonMonoxide)
-        .reduce((a, b) => a + b, 0) / records;
+      const particulateMaterialTwoFive = sumAndDivide(
+        dataTwentyFourHours.flatMap((data) => data.particulateMaterialTwoFive),
+        countTwentyFourHours,
+      );
 
-      const ozone = data
-        .map((d) => d.ozone)
-        .reduce((a, b) => a + b, 0) / records;
+      const carbonMonoxide = sumAndDivide(
+        dataEightHours.flatMap((data) => data.carbonMonoxide),
+        countEightHours,
+      );
+
+      const ozone = sumAndDivide(
+        dataEightHours.flatMap((data) => data.ozone),
+        countEightHours,
+      );
+
+      const data = dataTwentyFourHours.flatMap((dataActual) => ({
+        id: dataActual.id,
+        dateRegister: dataActual.dataRaw.dateRegister,
+        particulateMaterialTwoFive: dataActual.particulateMaterialTwoFive,
+        carbonMonoxide: dataActual.carbonMonoxide,
+        ozone: dataActual.ozone,
+        temperature: dataActual.temperature,
+        humidity: dataActual.humidity,
+      }));
 
       return {
         station,
@@ -57,7 +97,7 @@ class ServiceIndexDashboard {
       };
     });
 
-    const response = Promise.all(promiseReponses);
+    const response = await Promise.all(promiseReponses);
 
     return response;
   }

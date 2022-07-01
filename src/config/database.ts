@@ -10,7 +10,7 @@ const aqmDataSouce = new DataSource({
   synchronize: true,
   logging: false,
   migrationsRun: true,
-  ssl: String(process.env.DATABASE_SSL) === 'true',
+  ssl: String(process.env.DATABASE_SSL) === 'true' ? { rejectUnauthorized: false } : false,
   entities: [String(process.env.DATABASE_ENTITIES)],
   migrations: [String(process.env.DATABASE_MIGRATIONS)],
 });

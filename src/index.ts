@@ -28,7 +28,7 @@ aqmDataSouce.initialize().then(async () => {
     app.use(routes);
     app.use(errors());
     app.use(errorHandlerMiddleware);
-    app.listen(3030, () => sucessMessage('Server Started 🖥️'));
+    app.listen(Number(process.env.PORT) || 3030, () => sucessMessage('Server Started 🖥️'));
   } catch (error) {
     errorMessage('Error Start Server 🚨', String(error));
   }

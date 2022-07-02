@@ -27,6 +27,11 @@ services:
       POSTGRES_PASSWORD: 'aqm'
     networks:
       - default-network
+    volumes:
+      - aqm-postgres-data:/var/lib/postgresql/data
 networks:
   default-network:
     driver: bridge
+volumes:
+  aqm-postgres-data:
+    driver: local

@@ -6,7 +6,7 @@ class ControllerSession {
     const {
       login,
       password,
-    } = request.params;
+    } = request.body;
 
     const serviceCreateSession = new ServiceCreateSession();
 

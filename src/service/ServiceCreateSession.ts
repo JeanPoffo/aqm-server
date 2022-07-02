@@ -26,7 +26,7 @@ class ServiceCreateSession {
       throw new AppError('Incorrect Login/Password', 401);
     }
 
-    const isMatched = compare(password, String(user.password));
+    const isMatched = await compare(password, String(user.password));
 
     if (!isMatched) {
       throw new AppError('Incorrect Login/Password', 401);

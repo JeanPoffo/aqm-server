@@ -15,7 +15,7 @@ class ServiceCreateUser {
   public async execute({ name, login, password }: Request): Promise<User> {
     const userRepository = aqmDataSouce.getRepository(User);
 
-    const existingUser = userRepository.findOne({ where: { login } });
+    const existingUser = await userRepository.findOne({ where: { login } });
 
     if (existingUser !== null) {
       throw new AppError('Login Already Exists', 409);

@@ -18,7 +18,7 @@ class User {
     login: string;
 
   @Column({ name: 'password' })
-    password: string;
+    password?: string;
 
   @CreateDateColumn({ name: 'created_at' })
     createdAt: Date;

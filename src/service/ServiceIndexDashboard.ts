@@ -1,8 +1,16 @@
-import { MoreThan } from 'typeorm';
+import { Between } from 'typeorm';
 import { sumAndDivide } from '../utils/numeric';
 import { aqmDataSouce } from '../config/database';
 import Station from '../models/Station';
 import Data from '../models/Data';
+
+interface Request {
+  startDate: Date,
+
+  endDate: Date,
+
+  stationId: string | undefined,
+}
 
 /** Only Registered Data */
 interface DataResponse {
@@ -32,32 +40,45 @@ interface Response {
 }
 
 class ServiceIndexDashboard {
-  public async execute(): Promise<Response[]> {
-    const lastTwentyFourHours = new Date();
+  public async execute({ startDate, endDate, stationId }: Request): Promise<Response[]> {
+    const lastTwentyFourHours = new Date(endDate);
     lastTwentyFourHours.setHours(lastTwentyFourHours.getHours() - 24);
 
-    const lastEightHours = new Date();
+    const lastEightHours = new Date(endDate);
     lastEightHours.setHours(lastEightHours.getHours() - 8);
 
     const stationRepository = aqmDataSouce.getRepository(Station);
     const dataRepository = aqmDataSouce.getRepository(Data);
 
-    const stations = await stationRepository.find({ where: { isActive: true } });
+    const where = {
+      isActive: true,
+    };
+
+    if (stationId) {
+      Object.assign(where, { id: stationId });
+    }
+
+    const stations = await stationRepository.find({ where });
 
     const promiseReponses = stations.map(async (station) => {
-      const dataTwentyFourHours = await dataRepository.find({
+      const allData = await dataRepository.find({
         relations: ['dataRaw'],
         where: {
           dataRaw: {
             station: { id: station.id },
-            createdAt: MoreThan(lastTwentyFourHours),
+            dateRegister: Between(startDate, endDate),
           },
         },
       });
 
-      const dataEightHours = dataTwentyFourHours.filter(
+      const dataTwentyFourHours = allData.filter(
+        (actualData) => actualData.dataRaw.dateRegister >= lastTwentyFourHours,
+      );
+
+      const dataEightHours = allData.filter(
         (actualData) => actualData.dataRaw.dateRegister >= lastEightHours,
       );
+
       const countTwentyFourHours = dataTwentyFourHours.length;
       const countEightHours = dataEightHours.length;
 
@@ -76,7 +97,7 @@ class ServiceIndexDashboard {
         countEightHours,
       );
 
-      const data = dataTwentyFourHours.flatMap((dataActual) => ({
+      const data = allData.flatMap((dataActual) => ({
         id: dataActual.id,
         dateRegister: dataActual.dataRaw.dateRegister,
         particulateMaterialTwoFive: dataActual.particulateMaterialTwoFive,

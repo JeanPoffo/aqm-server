@@ -2,12 +2,6 @@ import { NextFunction, Request, Response } from 'express';
 import { verify } from 'jsonwebtoken';
 import AppError from '../errors/AppError';
 
-interface TokenPaylod {
-  iat: number;
-  exp: number;
-  sub: string;
-}
-
 const validateSessionMiddleware = (
   request: Request,
   _response: Response,
@@ -22,13 +16,13 @@ const validateSessionMiddleware = (
   const [, token] = authHeader.split(' ');
 
   try {
-    const { sub } = verify(token, String(process.env.JWT_SECRET)) as TokenPaylod;
+    const { sub } = verify(token, String(process.env.JWT_SECRET));
 
     request.user = {
-      id: sub,
+      id: String(sub),
     };
 
-    return next();
+    next();
   } catch (error) {
     throw new AppError('Invalid JWT Token', 401);
   }

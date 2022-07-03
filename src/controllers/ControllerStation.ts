@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import ServiceIndexStation from '../service/ServiceIndexStation';
 import ServiceCreateStation from '../service/ServiceCreateStation';
 
 class ControllerStation {
@@ -18,6 +19,14 @@ class ControllerStation {
     });
 
     return response.status(200).json(station);
+  }
+
+  public async index(_request: Request, response: Response): Promise<Response> {
+    const serviceIndexStation = new ServiceIndexStation();
+
+    const stations = await serviceIndexStation.execute();
+
+    return response.json(stations);
   }
 }
 

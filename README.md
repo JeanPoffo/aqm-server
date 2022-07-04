@@ -2,7 +2,7 @@
   <img src="logo.png" alt="Project logo">
 </p>
 
-<h3 align="center">Air Quality Measurement</h3>
+<h3 align="center">Air Quality Measurement - Server</h3>
 
 <div align="center">
 
@@ -34,10 +34,17 @@ A project to collect and distribute air quality data.
 
 ## 💭 How it works <a name = "working"></a>
 
-Various Arduino platforms with sensors are used to collect data and send it to the server.
+The server collects the data sent by the IOT platforms and makes it available for use on web platforms.
 
 ## 🎈 Usage <a name = "usage"></a>
 
+Development
+```
+yarn install
+yarn dev
+```
+
+Production
 ```
 yarn install
 yarn build

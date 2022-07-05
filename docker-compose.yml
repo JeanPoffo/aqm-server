@@ -6,15 +6,16 @@ services:
     container_name: aqm-server
     restart: unless-stopped
     environment:
-      - DATABASE_HOST=aqm-postgres
-      - DATABASE_PORT=5432
-      - DATABASE_USERNAME=aqm
-      - DATABASE_PASSWORD=aqm
-      - DATABASE_DATABASE=aqm
-      - DATABASE_ENTITIES=build/models/*.js
-      - DATABASE_MIGRATIONS=build/migrations/*.js
-      - JWT_SECRET=default
-      - ACTIVATE_ROUTE_RESTRICTION=true
+      DATABASE_HOST: aqm-postgres
+      DATABASE_PORT: 5432
+      DATABASE_USERNAME: aqm
+      DATABASE_PASSWORD: aqm
+      DATABASE_DATABASE: aqm
+      DATABASE_ENTITIES: build/models/*.js
+      DATABASE_MIGRATIONS: build/migrations/*.js
+      JWT_SECRET: default
+      ACTIVATE_ROUTE_RESTRICTION: false
+      TZ: UTC-3
     ports:
       - 3030:3030
     networks:
@@ -24,9 +25,11 @@ services:
   aqm-postgres: 
     image: postgres:14.3
     environment:
-      POSTGRES_DB: 'aqm'
-      POSTGRES_USER: 'aqm'
-      POSTGRES_PASSWORD: 'aqm'
+      POSTGRES_DB: aqm
+      POSTGRES_USER: aqm
+      POSTGRES_PASSWORD: aqm
+      TZ: UTC-3
+      PGTZ: UTC-3
     networks:
       - default-network
     volumes:

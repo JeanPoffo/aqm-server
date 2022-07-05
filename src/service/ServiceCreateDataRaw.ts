@@ -10,8 +10,6 @@ import ServiceConvertOzone from './converters/ServiceConvertOzone';
 interface Request {
   stationId: string
 
-  dateRegister: Date;
-
   particulateMaterialTwoFive: number
 
   particulateMaterialTen: number

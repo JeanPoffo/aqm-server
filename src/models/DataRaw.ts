@@ -18,7 +18,7 @@ class DataRaw {
   @JoinColumn({ name: 'station_id' })
     station: Station;
 
-  @Column({ name: 'date_register', type: 'timestamp' })
+  @CreateDateColumn({ name: 'date_register' })
     dateRegister: Date;
 
   @Column({ name: 'particulate_material_two_five', type: 'numeric' })

@@ -3,7 +3,6 @@ import { celebrate, Joi, Segments } from 'celebrate';
 const createDataRawMiddleware = celebrate({
   [Segments.BODY]: Joi.object().keys({
     stationId: Joi.string().uuid().required(),
-    dateRegister: Joi.string().isoDate().default(new Date()),
     particulateMaterialTwoFive: Joi.number().required(),
     particulateMaterialTen: Joi.number().default(0),
     carbonMonoxide: Joi.number().required(),

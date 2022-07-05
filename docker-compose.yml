@@ -28,8 +28,6 @@ services:
       POSTGRES_DB: aqm
       POSTGRES_USER: aqm
       POSTGRES_PASSWORD: aqm
-      TZ: UTC-3
-      PGTZ: UTC-3
     networks:
       - default-network
     volumes:

@@ -5,7 +5,6 @@ class ControllerDataRaw {
   public async create(request: Request, response: Response): Promise<Response> {
     const {
       stationId,
-      dateRegister,
       particulateMaterialTwoFive,
       particulateMaterialTen,
       carbonMonoxide,
@@ -20,7 +19,6 @@ class ControllerDataRaw {
 
     const dataRaw = await serviceCreateDataRaw.execute({
       stationId,
-      dateRegister,
       particulateMaterialTwoFive,
       particulateMaterialTen,
       carbonMonoxide,

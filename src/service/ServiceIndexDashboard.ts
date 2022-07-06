@@ -41,9 +41,6 @@ interface Response {
 
 class ServiceIndexDashboard {
   public async execute({ startDate, endDate, stationId }: Request): Promise<Response[]> {
-    const lastTwentyFourHours = new Date(endDate);
-    lastTwentyFourHours.setHours(lastTwentyFourHours.getHours() - 24);
-
     const lastEightHours = new Date(endDate);
     lastEightHours.setHours(lastEightHours.getHours() - 8);
 
@@ -69,11 +66,14 @@ class ServiceIndexDashboard {
             dateRegister: Between(startDate, endDate),
           },
         },
+        order: {
+          dataRaw: {
+            dateRegister: 'DESC',
+          },
+        },
       });
 
-      const dataTwentyFourHours = allData.filter(
-        (actualData) => actualData.dataRaw.dateRegister >= lastTwentyFourHours,
-      );
+      const dataTwentyFourHours = allData;
 
       const dataEightHours = allData.filter(
         (actualData) => actualData.dataRaw.dateRegister >= lastEightHours,

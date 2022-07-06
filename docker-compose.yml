@@ -15,7 +15,6 @@ services:
       DATABASE_MIGRATIONS: build/migrations/*.js
       JWT_SECRET: default
       ACTIVATE_ROUTE_RESTRICTION: false
-      TZ: UTC-3
     ports:
       - 3030:3030
     networks:

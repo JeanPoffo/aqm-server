@@ -233,7 +233,7 @@ class ServiceIndexDashboard {
         name: 'Umidade',
         dateRegister,
         value: Number(
-          sumAndDivide(dataOfPeriod.flatMap((data) => data.temperature)).toFixed(2),
+          sumAndDivide(dataOfPeriod.flatMap((data) => data.humidity)).toFixed(2),
         ),
       };
 

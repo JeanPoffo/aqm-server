@@ -151,8 +151,6 @@ class ServiceIndexDashboard {
         ({ dataRaw: { dateRegister } }) => dateRegister.getDay() === day && dateRegister.getHours() === hours,
       );
 
-      console.log(day, hours);
-
       const { dateRegister } = dataOfPeriod[0].dataRaw;
       dateRegister.setMinutes(0);
       dateRegister.setSeconds(0);

@@ -3,8 +3,6 @@ import AppError from '../errors/AppError';
 import Station from '../models/Station';
 import DataRaw from '../models/DataRaw';
 import Data from '../models/Data';
-import ServiceConvertParticulateMaterialTwoFive from './converters/ServiceConvertParticulateMaterialTwoFive';
-import ServiceConvertCarbonMonoxide from './converters/ServiceConvertCarbonMonoxide';
 import ServiceConvertOzone from './converters/ServiceConvertOzone';
 
 interface Request {
@@ -32,8 +30,6 @@ class ServiceCreateDataRaw {
     const stationRepository = aqmDataSouce.getRepository(Station);
     const dataRawRepository = aqmDataSouce.getRepository(DataRaw);
     const dataRepository = aqmDataSouce.getRepository(Data);
-    const serviceConvertParticulateMaterialTwoFive = new ServiceConvertParticulateMaterialTwoFive();
-    const serviceConvertCarbonMonoxide = new ServiceConvertCarbonMonoxide();
     const serviceConvertOzone = new ServiceConvertOzone();
 
     const station = await stationRepository.findOne({ where: { id: stationId } });
@@ -49,8 +45,6 @@ class ServiceCreateDataRaw {
 
     const {
       id,
-      particulateMaterialTwoFive,
-      carbonMonoxide,
       ozone,
       ...restData
     } = await dataRawRepository.save(dataRaw);
@@ -59,12 +53,6 @@ class ServiceCreateDataRaw {
       dataRaw: {
         id,
       },
-      particulateMaterialTwoFive: serviceConvertParticulateMaterialTwoFive.execute(
-        particulateMaterialTwoFive,
-      ),
-      carbonMonoxide: serviceConvertCarbonMonoxide.execute(
-        carbonMonoxide,
-      ),
       ozone: serviceConvertOzone.execute(
         ozone,
       ),

@@ -38,13 +38,32 @@ interface Graph {
   value: number,
 }
 
+interface Graphs {
+
+  particulateMaterialTwoFive: Graph[],
+
+  carbonMonoxide: Graph[],
+
+  ozone: Graph[],
+
+  temperature: Graph[],
+
+  humidity: Graph[],
+}
+
 interface Response {
   station: Station,
+
   data: DataResponse[],
-  graph: Graph[],
+
+  graphs: Graphs,
+
   conama: {
+
     particulateMaterialTwoFive: number,
+
     carbonMonoxide: number,
+
     ozone: number,
   }
 }
@@ -53,6 +72,9 @@ class ServiceIndexDashboard {
   public async execute({ startDate, endDate, stationId }: Request): Promise<Response[]> {
     const lastEightHours = new Date(endDate);
     lastEightHours.setHours(lastEightHours.getHours() - 8);
+
+    const lastSixteenHours = new Date(endDate);
+    lastSixteenHours.setHours(lastSixteenHours.getHours() - 8);
 
     const stationRepository = aqmDataSouce.getRepository(Station);
     const dataRepository = aqmDataSouce.getRepository(Data);
@@ -83,11 +105,64 @@ class ServiceIndexDashboard {
         },
       });
 
-      const dataEightHours = dataTwentyFourHours.filter(
+      const dataMovingAverageOne = dataTwentyFourHours.filter(
         (actualData) => actualData.dataRaw.dateRegister >= lastEightHours,
       );
 
-      return this.buildReponse(station, dataTwentyFourHours, dataEightHours);
+      const dataMovingAverageTwo = dataTwentyFourHours.filter(
+        (actualData) => actualData.dataRaw.dateRegister >= lastSixteenHours && actualData.dataRaw.dateRegister < lastEightHours,
+      );
+
+      const dataMovingAverageThree = dataTwentyFourHours.filter(
+        (actualData) => actualData.dataRaw.dateRegister < lastSixteenHours,
+      );
+
+      const particulateMaterialTwoFive = Number(
+        sumAndDivide([
+          sumAndDivide(dataMovingAverageOne.flatMap((data) => data.particulateMaterialTwoFive)),
+          sumAndDivide(dataMovingAverageTwo.flatMap((data) => data.particulateMaterialTwoFive)),
+          sumAndDivide(dataMovingAverageThree.flatMap((data) => data.particulateMaterialTwoFive)),
+        ]).toFixed(4),
+      );
+
+      const carbonMonoxide = Number(
+        sumAndDivide([
+          sumAndDivide(dataMovingAverageOne.flatMap((data) => data.carbonMonoxide)),
+          sumAndDivide(dataMovingAverageTwo.flatMap((data) => data.carbonMonoxide)),
+          sumAndDivide(dataMovingAverageThree.flatMap((data) => data.carbonMonoxide)),
+        ]).toFixed(4),
+      );
+
+      const ozone = Number(
+        sumAndDivide([
+          sumAndDivide(dataMovingAverageOne.flatMap((data) => data.ozone)),
+          sumAndDivide(dataMovingAverageTwo.flatMap((data) => data.ozone)),
+          sumAndDivide(dataMovingAverageThree.flatMap((data) => data.ozone)),
+        ]).toFixed(4),
+      );
+
+      const data = dataTwentyFourHours.flatMap((dataActual) => ({
+        id: dataActual.id,
+        dateRegister: dataActual.dataRaw.dateRegister,
+        particulateMaterialTwoFive: Number(Number(dataActual.particulateMaterialTwoFive).toFixed(4)),
+        carbonMonoxide: Number(Number(dataActual.carbonMonoxide).toFixed(4)),
+        ozone: Number(Number(dataActual.ozone).toFixed(4)),
+        temperature: Number(Number(dataActual.temperature).toFixed(2)),
+        humidity: Number(Number(dataActual.humidity).toFixed(2)),
+      }));
+
+      const graphs = this.buildGraph(dataTwentyFourHours);
+
+      return {
+        station,
+        data,
+        graphs,
+        conama: {
+          particulateMaterialTwoFive,
+          carbonMonoxide,
+          ozone,
+        },
+      };
     });
 
     const response = await Promise.all(promiseReponses);
@@ -95,48 +170,7 @@ class ServiceIndexDashboard {
     return response;
   }
 
-  public async buildReponse(
-    station: Station,
-    dataTwentyFourHours: Data[],
-    dataEightHours: Data[],
-  ): Promise<Response> {
-    const particulateMaterialTwoFive = Number(
-      sumAndDivide(dataEightHours.flatMap((data) => data.particulateMaterialTwoFive)).toFixed(4),
-    );
-
-    const carbonMonoxide = Number(
-      sumAndDivide(dataEightHours.flatMap((data) => data.carbonMonoxide)).toFixed(4),
-    );
-
-    const ozone = Number(
-      sumAndDivide(dataEightHours.flatMap((data) => data.ozone)).toFixed(4),
-    );
-
-    const data = dataTwentyFourHours.flatMap((dataActual) => ({
-      id: dataActual.id,
-      dateRegister: dataActual.dataRaw.dateRegister,
-      particulateMaterialTwoFive: Number(Number(dataActual.particulateMaterialTwoFive).toFixed(4)),
-      carbonMonoxide: Number(Number(dataActual.carbonMonoxide).toFixed(4)),
-      ozone: Number(Number(dataActual.ozone).toFixed(4)),
-      temperature: Number(Number(dataActual.temperature).toFixed(2)),
-      humidity: Number(Number(dataActual.humidity).toFixed(2)),
-    }));
-
-    const graph = this.buildGraph(dataTwentyFourHours);
-
-    return {
-      station,
-      data,
-      graph,
-      conama: {
-        particulateMaterialTwoFive,
-        carbonMonoxide,
-        ozone,
-      },
-    };
-  }
-
-  public buildGraph(dataGraph: Data[]): Graph[] {
+  public buildGraph(dataGraph: Data[]): Graphs {
     const allPeriods = dataGraph.map(({ dataRaw: { dateRegister } }) => ({
       day: dateRegister.getDay(),
       hours: dateRegister.getHours(),
@@ -144,7 +178,15 @@ class ServiceIndexDashboard {
 
     const periods = [...new Map(allPeriods.map((x) => [x.hours, x])).values()];
 
-    const graphs: Graph[] = [];
+    periods.sort((a, b) => Number(`${a.day}${a.hours}`) - Number(`${b.day}${b.hours}`));
+
+    const graphs: Graphs = {
+      particulateMaterialTwoFive: [],
+      carbonMonoxide: [],
+      ozone: [],
+      temperature: [],
+      humidity: [],
+    };
 
     periods.forEach(({ day, hours }) => {
       const dataOfPeriod = dataGraph.filter(
@@ -179,9 +221,27 @@ class ServiceIndexDashboard {
         ),
       };
 
-      graphs.push(graphParticulateMaterialTwoFive);
-      graphs.push(graphCarbonMonoxide);
-      graphs.push(graphOzone);
+      const graphTemperature = {
+        name: 'Temperatura',
+        dateRegister,
+        value: Number(
+          sumAndDivide(dataOfPeriod.flatMap((data) => data.temperature)).toFixed(2),
+        ),
+      };
+
+      const graphHumidity = {
+        name: 'Umidade',
+        dateRegister,
+        value: Number(
+          sumAndDivide(dataOfPeriod.flatMap((data) => data.temperature)).toFixed(2),
+        ),
+      };
+
+      graphs.particulateMaterialTwoFive.push(graphParticulateMaterialTwoFive);
+      graphs.carbonMonoxide.push(graphCarbonMonoxide);
+      graphs.ozone.push(graphOzone);
+      graphs.temperature.push(graphTemperature);
+      graphs.humidity.push(graphHumidity);
     });
 
     return graphs;

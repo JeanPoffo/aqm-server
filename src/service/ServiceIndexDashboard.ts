@@ -193,7 +193,7 @@ class ServiceIndexDashboard {
         ({ dataRaw: { dateRegister } }) => dateRegister.getDay() === day && dateRegister.getHours() === hours,
       );
 
-      const { dateRegister } = dataOfPeriod[0].dataRaw;
+      const dateRegister = new Date(dataOfPeriod[0].dataRaw.dateRegister);
       dateRegister.setMinutes(0);
       dateRegister.setSeconds(0);
 

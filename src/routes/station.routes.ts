@@ -13,5 +13,6 @@ if (String(process.env.ACTIVATE_ROUTE_RESTRICTION) === 'true') {
 }
 
 stationRouter.post('/', createStationMiddleware, controllerStation.create);
+stationRouter.delete('/:id', controllerStation.delete);
 
 export default stationRouter;
